@@ -32,9 +32,9 @@ type CreateContextOptions = Record<string, never>;
  * @see https://create.t3.gg/en/usage/trpc#-servertrpccontextts
  */
 const createInnerTRPCContext = (_opts: CreateContextOptions) => {
-  return {
-    prisma,
-  };
+	return {
+		prisma,
+	};
 };
 
 /**
@@ -43,8 +43,17 @@ const createInnerTRPCContext = (_opts: CreateContextOptions) => {
  *
  * @see https://trpc.io/docs/context
  */
-export const createTRPCContext = (_opts: CreateNextContextOptions) => {
-  return createInnerTRPCContext({});
+export const createTRPCContext = async (_opts: CreateNextContextOptions) => {
+	const supabaseServerClient = createServerSupabaseClient(_opts);
+	const {
+		data: { user },
+	} = await supabaseServerClient.auth.getUser();
+
+	return {
+		...createInnerTRPCContext({}),
+		user,
+		supabase: supabaseServerClient,
+	};
 };
 
 /**
@@ -55,12 +64,13 @@ export const createTRPCContext = (_opts: CreateNextContextOptions) => {
  */
 import { initTRPC } from "@trpc/server";
 import superjson from "superjson";
+import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 
 const t = initTRPC.context<typeof createTRPCContext>().create({
-  transformer: superjson,
-  errorFormatter({ shape }) {
-    return shape;
-  },
+	transformer: superjson,
+	errorFormatter({ shape }) {
+		return shape;
+	},
 });
 
 /**
