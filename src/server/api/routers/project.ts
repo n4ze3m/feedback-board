@@ -316,4 +316,77 @@ export const projectRouter = createTRPCRouter({
 				message: "Label or status updated successfully",
 			};
 		}),
+
+	updateSettings: publicProcedure
+		.input(
+			z.object({
+				projectId: z.string(),
+				settings: z.object({
+					name: z.string(),
+					description: z.string(),
+					username: z.string(),
+					isNotificationsEnabled: z.boolean(),
+					isUpVotesEnabled: z.boolean(),
+				}),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			if (!ctx.user) {
+				throw new TRPCError({
+					code: "UNAUTHORIZED",
+					message: "You must be logged in to create a project",
+				});
+			}
+			const project = await ctx.prisma.project.findFirst({
+				where: {
+					id: input.projectId,
+					userId: ctx.user.id,
+				},
+			});
+
+			if (!project) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Project not found",
+				});
+			}
+
+			const slug = slugify(input.settings.username, {
+				lower: true,
+				strict: true,
+			});
+
+			const isSlugAvailable = await ctx.prisma.project.findFirst({
+				where: {
+					publicId: slug,
+					id: {
+						not: input.projectId,
+					},
+				},
+			});
+
+			if (isSlugAvailable) {
+				throw new TRPCError({
+					code: "BAD_REQUEST",
+					message: "Username is not available",
+				});
+			}
+
+			await ctx.prisma.project.update({
+				where: {
+					id: input.projectId,
+				},
+				data: {
+					name: input.settings.name,
+					description: input.settings.description,
+					publicId: slug,
+					isNotificationsEnabled: input.settings.isNotificationsEnabled,
+					isUpVotesEnabled: input.settings.isUpVotesEnabled,
+				},
+			});
+
+			return {
+				message: "Project updated successfully",
+			};
+		}),
 });
