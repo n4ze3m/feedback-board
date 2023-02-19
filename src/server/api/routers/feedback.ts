@@ -137,4 +137,40 @@ export const feedbackRouter = createTRPCRouter({
 				message: "Status updated",
 			};
 		}),
+
+	getPubicFeedback: publicProcedure
+		.input(
+			z.object({
+				publicId: z.string(),
+			}),
+		)
+		.query(async ({ input, ctx }) => {
+			const project = await ctx.prisma.project.findFirst({
+				where: {
+					publicId: input.publicId,
+				},
+			});
+
+			if (!project) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Project not found",
+				});
+			}
+
+			const feedbacks = await ctx.prisma.feedbacks.findMany({
+				where: {
+					projectId: project.id,
+				},
+				include: {
+					status: true,
+					type: true,
+				},
+			});
+
+			return feedbacks.map((feedback) => ({
+				...feedback,
+				email: undefined,
+			}));
+		}),
 });

@@ -1,8 +1,5 @@
-import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
-import { Auth, ThemeSupa } from "@supabase/auth-ui-react";
 import { GetServerSideProps, type NextPage } from "next";
 import Head from "next/head";
-import { useRouter } from "next/router";
 import React from "react";
 import BoardBody from "../../components/Board";
 import BoardLayout from "../../components/Board/Layout";
