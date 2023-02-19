@@ -1,59 +1,17 @@
-import {
-  CalendarIcon,
-  ChatBubbleLeftEllipsisIcon,
-  ChevronUpIcon,
-  LockOpenIcon,
-  PlusIcon,
-} from "@heroicons/react/24/outline";
+import { ChevronUpIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { useForm } from "@mantine/form";
-import { Feedbacks, FeedbackStatus, FeedbackTypes } from "@prisma/client";
 import { Modal, Skeleton } from "antd";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
 import { api } from "../../../../utils/api";
-const projects = [
-  {
-    id: 1,
-    subject: "Velit plaed",
-    sender: "Gloria Roberston",
-    time: "1d ago",
-    datetime: "2021-01-27T16:35",
-    preview:
-      "Doloremque dolorem maiores assumenda dolorem facilis. Velit vel in a rerum natus facere. Enim rerum eaque qui facilis. Numquam laudantium sed id dolores omnis in. Eos reiciendis deserunt maiores et accusamus quod dolor. in. Eos reiciendis deserunt maiores et accusamus quod dolor",
-  },
-  {
-    id: 1,
-    subject: "Velit placeat sit ducimus non sed",
-    sender: "Gloria Roberston",
-    time: "1d ago",
-    datetime: "2021-01-27T16:35",
-    preview:
-      "Doloremque dolorem maiores assumenda dolorem facilis. Velit vel in a rerum natus facere. Enim rerum eaque qui facilis. Numquam laudantium sed id dolores omnis in. Eos reiciendis deserunt maiores et accusamus quod dolor.",
-  },
-  {
-    id: 1,
-    subject: "Velit placeat sit ducimus non sed",
-    sender: "Gloria Roberston",
-    time: "1d ago",
-    datetime: "2021-01-27T16:35",
-    preview:
-      "Doloremque dolorem maiores assumenda dolorem facilis. Velit vel in a rerum natus facere. Enim rerum eaque qui facilis. Numquam laudantium sed id dolores omnis in. Eos reiciendis deserunt maiores et accusamus quod dolor.",
-  },
-];
 
 //@ts-ignore
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 export const DashboardDetailsInbox = () => {
-  const [open, setOpen] = React.useState(false);
   const [openPost, setOpenPost] = React.useState(false);
-  const [projectInfo, setProjectInfo] = React.useState<
-    Feedbacks & {
-      status: FeedbackStatus | null;
-      type: FeedbackTypes;
-    } | null
-  >(null);
   const router = useRouter();
 
   const client = api.useContext();
@@ -134,12 +92,14 @@ export const DashboardDetailsInbox = () => {
                           </p>
                         </button>
                       </div>
-                      {/* rome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
-                      <div
+                      <Link
                         className="min-w-0 flex-1"
-                        onClick={() => {
-                          setProjectInfo(project);
-                          setOpen(true);
+                        href={{
+                          pathname: "/dashboard/board/[id]/[feedbackId]",
+                          query: {
+                            id: router.query.id,
+                            feedbackId: project.id,
+                          },
                         }}
                       >
                         <div className="block focus:outline-none cursor-pointer">
@@ -159,7 +119,7 @@ export const DashboardDetailsInbox = () => {
                             {project.message}
                           </p>
                         </div>
-                      </div>
+                      </Link>
 
                       <time
                         dateTime={project.createdAt.toTimeString()}
@@ -181,190 +141,6 @@ export const DashboardDetailsInbox = () => {
       )}
 
       {projectStatus === "loading" && <Skeleton />}
-
-      <Modal
-        open={open}
-        onCancel={() => setOpen(false)}
-        footer={null}
-        width={900}
-        closable={false}
-      >
-        <main className="flex-1">
-          <div className="py-8 xl:py-10">
-            <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 xl:grid xl:max-w-5xl xl:grid-cols-3">
-              <div className="xl:col-span-2 xl:border-r xl:border-gray-200 xl:pr-8">
-                <div>
-                  <div>
-                    <div className="md:flex md:items-center md:justify-between md:space-x-4 xl:border-b xl:pb-6">
-                      <div>
-                        <h1 className="text-2xl font-bold text-gray-900">
-                          {projectInfo?.title}
-                        </h1>
-                        <p className="mt-2 text-sm text-gray-500">
-                          opened by {projectInfo?.name || projectInfo?.email ||
-                            "Anonymous"}
-                          {" "}
-                        </p>
-                      </div>
-                    </div>
-                    <aside className="mt-8 xl:hidden">
-                      <h2 className="sr-only">Details</h2>
-                      <div className="space-y-5">
-                        <div className="flex items-center space-x-2">
-                          <ChevronUpIcon
-                            className="h-5 w-5 text-gray-400"
-                            aria-hidden="true"
-                          />
-                          <span className="text-sm font-medium text-gray-900">
-                            {`${projectInfo?.upVotes} upvotes`}
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <ChatBubbleLeftEllipsisIcon
-                            className="h-5 w-5 text-gray-400"
-                            aria-hidden="true"
-                          />
-                          <span className="text-sm font-medium text-gray-900">
-                            4 comments
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <CalendarIcon
-                            className="h-5 w-5 text-gray-400"
-                            aria-hidden="true"
-                          />
-                          <span className="text-sm font-medium text-gray-900">
-                            Created on{" "}
-                            <time dateTime="2020-12-02">Dec 2, 2020</time>
-                          </span>
-                        </div>
-                      </div>
-                      <div className="mt-6 space-y-8 border-t border-b border-gray-200 py-6">
-                        <div>
-                          <h2 className="text-sm font-medium text-gray-500">
-                            Tags
-                          </h2>
-                          <ul role="list" className="mt-2 leading-8">
-                            <li className="inline">
-                              <span className="relative inline-flex items-center rounded-full border border-gray-300 px-3 py-0.5">
-                                <div className="ml-3.5 text-sm font-medium text-gray-900">
-                                  {projectInfo?.type.name}
-                                </div>
-                              </span>
-                              {" "}
-                            </li>
-                          </ul>
-                        </div>
-                        <div>
-                          <h2 className="text-sm font-medium text-gray-500">
-                            Assignees
-                          </h2>
-                          <ul role="list" className="mt-3 space-y-3">
-                            <li className="flex justify-start">
-                              <a
-                                href="#"
-                                className="flex items-center space-x-3"
-                              >
-                                <div className="flex-shrink-0">
-                                  <img
-                                    className="h-5 w-5 rounded-full"
-                                    src="https://images.unsplash.com/photo-1520785643438-5bf77931f493?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80"
-                                    alt=""
-                                  />
-                                </div>
-                                <div className="text-sm font-medium text-gray-900">
-                                  Eduardo Benz
-                                </div>
-                              </a>
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
-                    </aside>
-                    <div className="py-3 xl:pt-6 xl:pb-0">
-                      <h2 className="sr-only">Description</h2>
-                      <div className="prose max-w-none">
-                        <p>
-                          {projectInfo?.message}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <aside className="hidden xl:block xl:pl-8">
-                <h2 className="sr-only">Details</h2>
-                <div className="space-y-5">
-                  <div className="flex items-center space-x-2">
-                    <ChevronUpIcon
-                      className="h-5 w-5 text-gray-400"
-                      aria-hidden="true"
-                    />
-                    <span className="text-sm font-medium text-gray-900">
-                      {`${projectInfo?.upVotes} upvotes`}
-                    </span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <ChatBubbleLeftEllipsisIcon
-                      className="h-5 w-5 text-gray-400"
-                      aria-hidden="true"
-                    />
-                    <span className="text-sm font-medium text-gray-900">
-                      4 comments
-                    </span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <CalendarIcon
-                      className="h-5 w-5 text-gray-400"
-                      aria-hidden="true"
-                    />
-                    <span className="text-sm font-medium text-gray-900">
-                      Created on <time dateTime="2020-12-02">Dec 2, 2020</time>
-                    </span>
-                  </div>
-                </div>
-                <div className="mt-6 space-y-8 border-t border-gray-200 py-6">
-                 
-                  <div>
-                    <h2 className="text-sm font-medium text-gray-500">Tags</h2>
-                    <ul role="list" className="mt-2 leading-8">
-                      <li className="inline">
-                        <span className="relative inline-flex items-center rounded-full border border-gray-300 px-3 py-0.5">
-                          <div className="ml-3.5 text-sm font-medium text-gray-900">
-                            {projectInfo?.type.name}
-                          </div>
-                        </span>
-                        {" "}
-                      </li>
-                    </ul>
-                  </div>
-                  <div>
-                    <h2 className="text-sm font-medium text-gray-500">
-                      Assignees
-                    </h2>
-                    <ul role="list" className="mt-3 space-y-3">
-                      <li className="flex justify-start">
-                        <a href="#" className="flex items-center space-x-3">
-                          <div className="flex-shrink-0">
-                            <img
-                              className="h-5 w-5 rounded-full"
-                              src="https://images.unsplash.com/photo-1520785643438-5bf77931f493?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80"
-                              alt=""
-                            />
-                          </div>
-                          <div className="text-sm font-medium text-gray-900">
-                            Eduardo Benz
-                          </div>
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </aside>
-            </div>
-          </div>
-        </main>
-      </Modal>
 
       <Modal
         open={openPost}

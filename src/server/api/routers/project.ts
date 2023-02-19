@@ -10,6 +10,7 @@ const DEFAULT_STATUS = [
 	"Duplicate",
 	"Rejected",
 	"Planned",
+	"In Review",
 ];
 
 const DEFAULT_TAGS = [
@@ -182,6 +183,19 @@ export const projectRouter = createTRPCRouter({
 				});
 			}
 
+			let statusId = null;
+
+			const inReview = await ctx.prisma.feedbackStatus.findFirst({
+				where: {
+					projectId: input.projectId,
+					status: "In Review",
+				},
+			});
+
+			if (inReview) {
+				statusId = inReview.id;
+			}
+
 			await ctx.prisma.feedbacks.create({
 				data: {
 					title: input.title,
@@ -189,11 +203,117 @@ export const projectRouter = createTRPCRouter({
 					projectId: input.projectId,
 					typeId: input.type,
 					email: ctx.user.email,
+					statusId: statusId,
 				},
 			});
 
 			return {
 				message: "Feedback created successfully",
+			};
+		}),
+
+	addLabelAndStatus: publicProcedure
+		.input(
+			z.object({
+				projectId: z.string(),
+				name: z.string(),
+				type: z.string(),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			if (!ctx.user) {
+				throw new TRPCError({
+					code: "UNAUTHORIZED",
+					message: "You must be logged in to create a project",
+				});
+			}
+			const project = await ctx.prisma.project.findFirst({
+				where: {
+					id: input.projectId,
+					userId: ctx.user.id,
+				},
+			});
+
+			if (!project) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Project not found",
+				});
+			}
+
+			if (input.type === "label") {
+				await ctx.prisma.feedbackTypes.create({
+					data: {
+						projectId: input.projectId,
+						name: input.name,
+					},
+				});
+			} else if (input.type === "status") {
+				await ctx.prisma.feedbackStatus.create({
+					data: {
+						projectId: input.projectId,
+						status: input.name,
+					},
+				});
+			}
+
+			return {
+				message: "Label or status added successfully",
+			};
+		}),
+
+	updateLabelAndStatus: publicProcedure
+		.input(
+			z.object({
+				projectId: z.string(),
+				id: z.string(),
+				name: z.string(),
+				type: z.string(),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			if (!ctx.user) {
+				throw new TRPCError({
+					code: "UNAUTHORIZED",
+					message: "You must be logged in to create a project",
+				});
+			}
+			const project = await ctx.prisma.project.findFirst({
+				where: {
+					id: input.projectId,
+					userId: ctx.user.id,
+				},
+			});
+
+			if (!project) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Project not found",
+				});
+			}
+
+			if (input.type === "label") {
+				await ctx.prisma.feedbackTypes.update({
+					where: {
+						id: input.id,
+					},
+					data: {
+						name: input.name,
+					},
+				});
+			} else if (input.type === "status") {
+				await ctx.prisma.feedbackStatus.update({
+					where: {
+						id: input.id,
+					},
+					data: {
+						status: input.name,
+					},
+				});
+			}
+
+			return {
+				message: "Label or status updated successfully",
 			};
 		}),
 });

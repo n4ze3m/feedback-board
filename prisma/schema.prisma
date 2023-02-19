@@ -58,7 +58,7 @@ model Feedbacks {
     statusId       String?
     status         FeedbackStatus? @relation(fields: [statusId], references: [id])
     message        String
-    title         String
+    title          String
     upVotes        Int             @default(0)
     downVotes      Int             @default(0)
     feedbackerInfo Json?

@@ -2,10 +2,9 @@ import { GetServerSideProps, type NextPage } from "next";
 import Head from "next/head";
 import React from "react";
 import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
-import { DashboardLayout } from "../../../../components/Layout";
 import { prisma } from "../../../../server/db";
 import LayoutDetails from "../../../../components/Layout/details";
-import { DashboardDetailsLabels } from "../../../../components/Dashboard/Details/Labels";
+import { FeedbackDetails } from "../../../../components/Dashboard/Details/Inbox/Feedback";
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const supabase = createServerSupabaseClient(ctx);
@@ -38,6 +37,22 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     };
   }
 
+  const isFeedbackExist = await prisma.feedbacks.findFirst({
+    where: {
+      id: ctx.query.fid as string,
+      projectId: ctx.query.id as string,
+    },
+  });
+
+  if (!isFeedbackExist) {
+    return {
+      redirect: {
+        destination: "/dashboard",
+        permanent: false,
+      },
+    };
+  }
+
   return {
     props: {},
   };
@@ -45,12 +60,11 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 
 const DashboardPage: NextPage = () => {
   return (
-    <LayoutDetails
-    >
+    <LayoutDetails>
       <Head>
-        <title>Labels / Feedback Board</title>
+        <title>Feedback / Feedback Board</title>
       </Head>
-      <DashboardDetailsLabels />
+      <FeedbackDetails />
     </LayoutDetails>
   );
 };
