@@ -20,22 +20,23 @@ model User {
 }
 
 model Project {
-    id                     String          @id @unique @default(uuid())
-    publicId               String          @unique
+    id                     String           @id @unique @default(uuid())
+    publicId               String           @unique
     name                   String
     description            String?
     website                String?
     logo                   String?
     userId                 String
     feedbackTypes          FeedbackTypes[]
-    user                   User            @relation(fields: [userId], references: [id])
-    isPublic               Boolean         @default(false)
-    isNotificationsEnabled Boolean         @default(true)
-    isUpVotesEnabled       Boolean         @default(true)
-    disableFeedback        Boolean         @default(false)
+    user                   User             @relation(fields: [userId], references: [id])
+    isPublic               Boolean          @default(false)
+    isNotificationsEnabled Boolean          @default(true)
+    isUpVotesEnabled       Boolean          @default(true)
+    disableFeedback        Boolean          @default(false)
     feedbacks              Feedbacks[]
-    createdAt              DateTime        @default(now())
-    updatedAt              DateTime        @updatedAt
+    createdAt              DateTime         @default(now())
+    updatedAt              DateTime         @updatedAt
+    status                 FeedbackStatus[]
 }
 
 model FeedbackTypes {
@@ -50,15 +51,30 @@ model FeedbackTypes {
 }
 
 model Feedbacks {
-    id             String        @id @unique @default(uuid())
+    id             String          @id @unique @default(uuid())
     projectId      String
-    project        Project       @relation(fields: [projectId], references: [id])
+    project        Project         @relation(fields: [projectId], references: [id])
     typeId         String
-    type           FeedbackTypes @relation(fields: [typeId], references: [id])
+    type           FeedbackTypes   @relation(fields: [typeId], references: [id])
+    statusId       String?
+    status         FeedbackStatus? @relation(fields: [statusId], references: [id])
     message        String
-    upVotes        Int           @default(0)
-    downVotes      Int           @default(0)
+    upVotes        Int             @default(0)
+    downVotes      Int             @default(0)
     feedbackerInfo Json?
-    createdAt      DateTime      @default(now())
-    updatedAt      DateTime      @updatedAt
+    email          String?
+    name           String?
+    allowContact   Boolean         @default(false)
+    createdAt      DateTime        @default(now())
+    updatedAt      DateTime        @updatedAt
+}
+
+model FeedbackStatus {
+    id        String      @id @unique @default(uuid())
+    status    String
+    projectId String
+    project   Project     @relation(fields: [projectId], references: [id])
+    createdAt DateTime    @default(now())
+    updatedAt DateTime    @updatedAt
+    Feedbacks Feedbacks[]
 }

@@ -4,6 +4,53 @@ import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 import slugify from "slugify";
 
+const DEFAULT_STATUS = [
+	"In Progress",
+	"Completed",
+	"Duplicate",
+	"Rejected",
+	"Planned",
+];
+
+const DEFAULT_TAGS = [
+	{
+		name: "general",
+		emoji: "📝",
+	},
+	{
+		name: "Bug",
+		emoji: "🐛",
+	},
+	{
+		name: "Feature",
+		emoji: "🎉",
+	},
+	{
+		name: "Design",
+		emoji: "🎨",
+	},
+	{
+		name: "Question",
+		emoji: "❓",
+	},
+	{
+		name: "Enhancement",
+		emoji: "🔨",
+	},
+	{
+		name: "Accessibility",
+		emoji: "♿️",
+	},
+	{
+		name: "Performance",
+		emoji: "🚀",
+	},
+	{
+		name: "Security",
+		emoji: "🔒",
+	},
+];
+
 export const projectRouter = createTRPCRouter({
 	create: publicProcedure
 		.input(
@@ -60,6 +107,25 @@ export const projectRouter = createTRPCRouter({
 				},
 			});
 
+			for (const status of DEFAULT_STATUS) {
+				await ctx.prisma.feedbackStatus.create({
+					data: {
+						projectId: project.id,
+						status: status,
+					},
+				});
+			}
+
+			for (const tag of DEFAULT_TAGS) {
+				await ctx.prisma.feedbackTypes.create({
+					data: {
+						projectId: project.id,
+						name: tag.name,
+						emoji: tag.emoji,
+					},
+				});
+			}
+
 			return {
 				message: "Project created successfully",
 				id: project.id,
@@ -77,6 +143,36 @@ export const projectRouter = createTRPCRouter({
 				userId: ctx.user.id,
 			},
 		});
-		return projects
+		return projects;
 	}),
+	getOne: publicProcedure
+		.input(z.object({ id: z.string() }))
+		.query(async ({ ctx, input }) => {
+			if (!ctx.user) {
+				throw new TRPCError({
+					code: "UNAUTHORIZED",
+					message: "You must be logged in to create a project",
+				});
+			}
+			const project = await ctx.prisma.project.findFirst({
+				where: {
+					id: input.id,
+					userId: ctx.user.id,
+				},
+				include: {
+					feedbacks: true,
+					status: true,
+					feedbackTypes: true,
+				},
+			});
+
+			if (!project) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Project not found",
+				});
+			}
+
+			return project;
+		}),
 });

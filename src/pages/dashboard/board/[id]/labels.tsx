@@ -5,7 +5,6 @@ import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 import { DashboardLayout } from "../../../../components/Layout";
 import { prisma } from "../../../../server/db";
 import LayoutDetails from "../../../../components/Layout/details";
-import { DashboardDetailsInbox } from "../../../../components/Dashboard/Details/Inbox";
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const supabase = createServerSupabaseClient(ctx);
@@ -48,9 +47,9 @@ const DashboardPage: NextPage = () => {
     <LayoutDetails
     >
       <Head>
-        <title>Board / Feedback Board</title>
+        <title>Labels / Feedback Board</title>
       </Head>
-     <DashboardDetailsInbox />
+      board labels
     </LayoutDetails>
   );
 };

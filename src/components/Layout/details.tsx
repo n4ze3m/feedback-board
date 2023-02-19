@@ -12,9 +12,13 @@ import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
 import { useRouter } from "next/router";
 
 const navigation = [
-  { name: "Inbox", href: "", icon: InboxIcon, current: true },
-  { name: "Labels", href: "#", icon: TagIcon, current: false },
-  { name: "Settings", href: "#", icon: Cog6ToothIcon, current: false },
+  { name: "Inbox", href: "/dashboard/board/[id]", icon: InboxIcon },
+  { name: "Labels", href: "/dashboard/board/[id]/labels", icon: TagIcon },
+  {
+    name: "Settings",
+    href: "/dashboard/board/[id]/settings",
+    icon: Cog6ToothIcon,
+  },
 ];
 //@ts-ignore
 function classNames(...classes) {
@@ -29,8 +33,13 @@ export default function LayoutDetails({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const user = useUser();
   const supabaseClient = useSupabaseClient();
-  const router = useRouter()
+  const router = useRouter();
 
+  const isSameRoute = (href: string) => {
+    const url = href
+    const path = router.pathname
+    return url === path;
+  }
 
   return (
     <>
@@ -100,11 +109,14 @@ export default function LayoutDetails({
                   <div className="mt-5 h-0 flex-1 overflow-y-auto">
                     <nav className="space-y-1 px-2">
                       {navigation.map((item) => (
-                        <a
+                        <Link
                           key={item.name}
-                          href={item.href}
+                          href={{
+                            pathname: item.href,
+                            query: { id: router.query.id },
+                          }}
                           className={classNames(
-                            item.current
+                            isSameRoute(item.href)
                               ? "bg-gray-100 text-gray-900"
                               : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
                             "group rounded-md py-2 px-2 flex items-center text-base font-medium",
@@ -112,7 +124,7 @@ export default function LayoutDetails({
                         >
                           <item.icon
                             className={classNames(
-                              item.current
+                              isSameRoute(item.href)
                                 ? "text-gray-500"
                                 : "text-gray-400 group-hover:text-gray-500",
                               "mr-4 flex-shrink-0 h-6 w-6",
@@ -120,7 +132,7 @@ export default function LayoutDetails({
                             aria-hidden="true"
                           />
                           {item.name}
-                        </a>
+                        </Link>
                       ))}
                     </nav>
                   </div>
@@ -150,11 +162,14 @@ export default function LayoutDetails({
             <div className="mt-5 flex flex-grow flex-col">
               <nav className="flex-1 space-y-1 px-2 pb-4">
                 {navigation.map((item) => (
-                  <a
+                  <Link
                     key={item.name}
-                    href={item.href}
+                    href={{
+                      pathname: item.href,
+                      query: { id: router.query.id },
+                    }}
                     className={classNames(
-                      item.current
+                      isSameRoute(item.href)
                         ? "bg-gray-100 text-gray-900"
                         : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
                       "group rounded-md py-2 px-2 flex items-center text-sm font-medium",
@@ -162,7 +177,7 @@ export default function LayoutDetails({
                   >
                     <item.icon
                       className={classNames(
-                        item.current
+                        isSameRoute(item.href)
                           ? "text-gray-500"
                           : "text-gray-400 group-hover:text-gray-500",
                         "mr-3 flex-shrink-0 h-6 w-6",
@@ -170,7 +185,7 @@ export default function LayoutDetails({
                       aria-hidden="true"
                     />
                     {item.name}
-                  </a>
+                  </Link>
                 ))}
               </nav>
             </div>

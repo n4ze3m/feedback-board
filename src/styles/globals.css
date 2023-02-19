@@ -1,3 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+.ant-modal-content {
+    font-family: 'Poppins', sans-serif !important;
+}
