@@ -25,8 +25,8 @@ function MyApp({
     <>
       <style jsx global>
         {`
-        html {
-          font-family: ${poppins.style.fontFamily};
+        html, body {
+          font-family: ${poppins.style.fontFamily} !important;          
         }
       `}
       </style>

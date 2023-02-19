@@ -13,7 +13,7 @@ const handler = async function (req: NextApiRequest, res: NextApiResponse) {
   });
 
   if (project) {
-    res.redirect(307, `/${project.publicId}`);
+    res.redirect(307, `/board/${project.publicId}`);
   }
 
   return res.redirect(307, "/dashboard");
