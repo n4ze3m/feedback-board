@@ -100,22 +100,22 @@ export default function BoardBody() {
                           <Link href="." className="w-full p-2">
                             <div className="flex items-center">
                               <p className="text-xs text-gray-500">
-                                sadas
+                                {feedback?.name || "Anonymous"}
                               </p>
                             </div>
 
                             <div className="block focus:outline-none cursor-pointer">
-                          <span
-                            className="absolute inset-0"
-                            aria-hidden="true"
-                          />
-                          <p className="truncate text-sm font-medium text-gray-900">
-                            {feedback.title}
-                          </p>
-                          <span className="inline-flex items-center rounded-md bg-gray-100 px-2.5 py-0.5 text-sm font-medium text-gray-800">
-                            {feedback.type.name}
-                          </span>
-                        </div>
+                              <span
+                                className="absolute inset-0"
+                                aria-hidden="true"
+                              />
+                              <p className="truncate text-sm font-medium text-gray-900">
+                                {feedback.title}
+                              </p>
+                              <span className="inline-flex items-center rounded-md bg-gray-100 px-2.5 py-0.5 text-sm font-medium text-gray-800">
+                                {feedback.type.name}
+                              </span>
+                            </div>
                             <div className="mt-1">
                               <p className="text-sm  text-gray-600 line-clamp-2 truncate">
                                 {feedback.message}
