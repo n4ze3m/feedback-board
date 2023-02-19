@@ -13,42 +13,13 @@ const DEFAULT_STATUS = [
 ];
 
 const DEFAULT_TAGS = [
-	{
-		name: "general",
-		emoji: "📝",
-	},
-	{
-		name: "Bug",
-		emoji: "🐛",
-	},
-	{
-		name: "Feature",
-		emoji: "🎉",
-	},
-	{
-		name: "Design",
-		emoji: "🎨",
-	},
-	{
-		name: "Question",
-		emoji: "❓",
-	},
-	{
-		name: "Enhancement",
-		emoji: "🔨",
-	},
-	{
-		name: "Accessibility",
-		emoji: "♿️",
-	},
-	{
-		name: "Performance",
-		emoji: "🚀",
-	},
-	{
-		name: "Security",
-		emoji: "🔒",
-	},
+	"General 📝",
+	"Bug 🐛",
+	"Feature 🚀",
+	"Design 🎨",
+	"Performance 🚀",
+	"Accessibility 🦾",
+	"Security 🔒",
 ];
 
 export const projectRouter = createTRPCRouter({
@@ -120,8 +91,7 @@ export const projectRouter = createTRPCRouter({
 				await ctx.prisma.feedbackTypes.create({
 					data: {
 						projectId: project.id,
-						name: tag.name,
-						emoji: tag.emoji,
+						name: tag,
 					},
 				});
 			}
@@ -160,7 +130,12 @@ export const projectRouter = createTRPCRouter({
 					userId: ctx.user.id,
 				},
 				include: {
-					feedbacks: true,
+					feedbacks: {
+						include: {
+							type: true,
+							status: true,
+						},
+					},
 					status: true,
 					feedbackTypes: true,
 				},
@@ -174,5 +149,51 @@ export const projectRouter = createTRPCRouter({
 			}
 
 			return project;
+		}),
+
+	createAdminFeedback: publicProcedure
+		.input(
+			z.object({
+				projectId: z.string(),
+				title: z.string(),
+				content: z.string(),
+				type: z.string(),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			if (!ctx.user) {
+				throw new TRPCError({
+					code: "UNAUTHORIZED",
+					message: "You must be logged in to create a project",
+				});
+			}
+
+			const isProjectOwner = await ctx.prisma.project.findFirst({
+				where: {
+					id: input.projectId,
+					userId: ctx.user.id,
+				},
+			});
+
+			if (!isProjectOwner) {
+				throw new TRPCError({
+					code: "UNAUTHORIZED",
+					message: "You must be the owner of this project",
+				});
+			}
+
+			await ctx.prisma.feedbacks.create({
+				data: {
+					title: input.title,
+					message: input.content,
+					projectId: input.projectId,
+					typeId: input.type,
+					email: ctx.user.email,
+				},
+			});
+
+			return {
+				message: "Feedback created successfully",
+			};
 		}),
 });

@@ -42,7 +42,6 @@ model Project {
 model FeedbackTypes {
     id        String      @id @unique @default(uuid())
     name      String
-    emoji     String
     projectId String
     project   Project     @relation(fields: [projectId], references: [id])
     feedbacks Feedbacks[]
@@ -59,6 +58,7 @@ model Feedbacks {
     statusId       String?
     status         FeedbackStatus? @relation(fields: [statusId], references: [id])
     message        String
+    title         String
     upVotes        Int             @default(0)
     downVotes      Int             @default(0)
     feedbackerInfo Json?

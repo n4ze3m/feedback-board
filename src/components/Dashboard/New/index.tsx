@@ -1,6 +1,7 @@
 import { ArrowLongLeftIcon, XCircleIcon } from "@heroicons/react/24/outline";
 import { useForm } from "@mantine/form";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import React from "react";
 import { api } from "../../../utils/api";
 
@@ -14,6 +15,7 @@ export const NewProject = () => {
   });
 
   const [errMessage, setErrMessage] = React.useState<string | null>(null);
+  const router = useRouter()
 
   const {
     mutate: createProject,
@@ -22,6 +24,9 @@ export const NewProject = () => {
     onError: (data) => {
       setErrMessage(data.message);
     },
+    onSuccess: (data) => {
+      router.push(`/dashboard/board/${data.id}`)
+    }
   });
 
   return (
