@@ -4,6 +4,7 @@ import React from "react";
 import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 import { prisma } from "../../../../server/db";
 import LayoutDetails from "../../../../components/Layout/details";
+import { DashboardDetailsSettings } from "../../../../components/Dashboard/Details/Settings";
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const supabase = createServerSupabaseClient(ctx);
@@ -48,7 +49,7 @@ const DashboardPage: NextPage = () => {
       <Head>
         <title>Labels / Feedback Board</title>
       </Head>
-      Settigs 
+      <DashboardDetailsSettings /> 
     </LayoutDetails>
   );
 };
