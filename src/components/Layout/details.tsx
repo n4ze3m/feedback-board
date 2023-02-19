@@ -4,6 +4,7 @@ import {
   Bars3BottomLeftIcon,
   Cog6ToothIcon,
   InboxIcon,
+  SignalIcon,
   TagIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
@@ -36,10 +37,10 @@ export default function LayoutDetails({
   const router = useRouter();
 
   const isSameRoute = (href: string) => {
-    const url = href
-    const path = router.pathname
+    const url = href;
+    const path = router.pathname;
     return url === path;
-  }
+  };
 
   return (
     <>
@@ -205,6 +206,19 @@ export default function LayoutDetails({
               </button>
               <div className="flex flex-1 justify-end px-4 md:px-0">
                 <div className="ml-4 flex items-center md:ml-6">
+                  <button
+                  onClick={() => {
+                    const id = router.query.id as string;
+                    // open new tab
+                    window.open(`/api/redirect/${id}`, "_blank");
+                    
+                  }}
+                    type="button"
+                    className="inline-flex items-center rounded border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  >
+                    <SignalIcon className="-ml-0.5 mr-2 h-4 w-4" />
+                    <span>Live Board</span>
+                  </button>
                   {/* Profile dropdown */}
                   <Menu as="div" className="relative ml-3">
                     <div>

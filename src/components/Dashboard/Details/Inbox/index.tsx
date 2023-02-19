@@ -6,10 +6,7 @@ import { useRouter } from "next/router";
 import React from "react";
 import { api } from "../../../../utils/api";
 
-//@ts-ignore
-function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
-}
+
 export const DashboardDetailsInbox = () => {
   const [openPost, setOpenPost] = React.useState(false);
   const router = useRouter();
@@ -108,7 +105,7 @@ export const DashboardDetailsInbox = () => {
                             aria-hidden="true"
                           />
                           <p className="truncate text-sm font-medium text-gray-900">
-                            {project.name}
+                            {project.title}
                           </p>
                           <span className="inline-flex items-center rounded-md bg-gray-100 px-2.5 py-0.5 text-sm font-medium text-gray-800">
                             {project.type.name}
