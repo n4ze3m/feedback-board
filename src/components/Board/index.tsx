@@ -1,10 +1,15 @@
-import { ChevronDownIcon, ChevronUpIcon, PlusIcon } from "@heroicons/react/24/outline";
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  PlusIcon,
+} from "@heroicons/react/24/outline";
 import { useForm } from "@mantine/form";
 import { Modal, notification, Skeleton } from "antd";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
 import { api } from "../../utils/api";
+import { getUserId } from "./utils/id";
 
 export default function BoardBody() {
   const router = useRouter();
@@ -53,6 +58,23 @@ export default function BoardBody() {
       });
       setOpen(false);
       form.reset();
+    },
+    onError: () => {
+      notification.error({
+        message: "Something went wrong",
+      });
+    },
+  });
+
+  const {
+    mutate: createVote,
+    isLoading: createVoteLoading,
+  } = api.feedback.vote.useMutation({
+    onSuccess: () => {
+      client.feedback.getPubicFeedback.refetch();
+      notification.success({
+        message: "Vote created successfully",
+      });
     },
     onError: () => {
       notification.error({
@@ -132,8 +154,14 @@ export default function BoardBody() {
                           <div className="flex-shrink-0 flex space-x-2 ">
                             <div className="w-10 py-3 text-center bg-gray-200 rounder-l">
                               <button
+                                disabled={createVoteLoading}
                                 onClick={() => {
-                                  console.log("upvote");
+                                  createVote({
+                                    feedbackId: feedback.id,
+                                    publicId: router.query.id as string,
+                                    type: "up",
+                                    userId: getUserId(),
+                                  });
                                 }}
                                 className="w-6 mx-auto text-grey-400 rounder cursor hover:bg-gray-300 hover:text-red-500"
                               >
@@ -142,12 +170,18 @@ export default function BoardBody() {
                                   aria-hidden="true"
                                 />
                               </button>
-                                <p className="font-medium">
-                                  {feedback.upVotes}
-                                </p>
-                                <button
+                              <p className="font-medium">
+                                {feedback.upVotes}
+                              </p>
+                              <button
+                                disabled={createVoteLoading}
                                 onClick={() => {
-                                  console.log("dowbvote");
+                                  createVote({
+                                    feedbackId: feedback.id,
+                                    publicId: router.query.id as string,
+                                    type: "down",
+                                    userId: getUserId(),
+                                  });
                                 }}
                                 className="w-6 mx-auto text-grey-400 rounder cursor hover:bg-gray-300 hover:text-red-500"
                               >

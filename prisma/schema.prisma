@@ -50,23 +50,25 @@ model FeedbackTypes {
 }
 
 model Feedbacks {
-    id             String          @id @unique @default(uuid())
+    id             String            @id @unique @default(uuid())
     projectId      String
-    project        Project         @relation(fields: [projectId], references: [id])
+    project        Project           @relation(fields: [projectId], references: [id])
     typeId         String
-    type           FeedbackTypes   @relation(fields: [typeId], references: [id])
+    type           FeedbackTypes     @relation(fields: [typeId], references: [id])
     statusId       String?
-    status         FeedbackStatus? @relation(fields: [statusId], references: [id])
+    status         FeedbackStatus?   @relation(fields: [statusId], references: [id])
     message        String
     title          String
-    upVotes        Int             @default(0)
-    downVotes      Int             @default(0)
+    upVotes        Int               @default(0)
+    downVotes      Int               @default(0)
+    votes          FeedbackVotes[]
     feedbackerInfo Json?
     email          String?
     name           String?
-    allowContact   Boolean         @default(false)
-    createdAt      DateTime        @default(now())
-    updatedAt      DateTime        @updatedAt
+    comments       FeedbackComment[]
+    allowContact   Boolean           @default(false)
+    createdAt      DateTime          @default(now())
+    updatedAt      DateTime          @updatedAt
 }
 
 model FeedbackStatus {
@@ -77,4 +79,26 @@ model FeedbackStatus {
     createdAt DateTime    @default(now())
     updatedAt DateTime    @updatedAt
     Feedbacks Feedbacks[]
+}
+
+model FeedbackComment {
+    id         String    @id @unique @default(uuid())
+    feedbackId String
+    feedback   Feedbacks @relation(fields: [feedbackId], references: [id])
+    message    String
+    email      String?
+    name       String?
+    isAdmin    Boolean   @default(false)
+    createdAt  DateTime  @default(now())
+    updatedAt  DateTime  @updatedAt
+}
+
+model FeedbackVotes {
+    id         String    @id @unique @default(uuid())
+    feedbackId String
+    feedback   Feedbacks @relation(fields: [feedbackId], references: [id])
+    clientId   String
+    voteType   String
+    createdAt  DateTime  @default(now())
+    updatedAt  DateTime  @updatedAt
 }

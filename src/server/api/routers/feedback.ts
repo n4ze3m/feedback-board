@@ -238,4 +238,130 @@ export const feedbackRouter = createTRPCRouter({
 				message: "Feedback created",
 			};
 		}),
+
+	vote: publicProcedure
+		.input(
+			z.object({
+				publicId: z.string(),
+				feedbackId: z.string(),
+				type: z.string(),
+				userId: z.string(),
+			}),
+		)
+		.mutation(async ({ input, ctx }) => {
+			const project = await ctx.prisma.project.findFirst({
+				where: {
+					publicId: input.publicId,
+				},
+			});
+
+			if (!project) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Project not found",
+				});
+			}
+
+			const feedback = await ctx.prisma.feedbacks.findFirst({
+				where: {
+					id: input.feedbackId,
+					projectId: project.id,
+				},
+			});
+
+			if (!feedback) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Feedback not found",
+				});
+			}
+
+			// check if user has already voted
+			const hasVoted = await ctx.prisma.feedbackVotes.findFirst({
+				where: {
+					feedbackId: input.feedbackId,
+					clientId: input.userId,
+				},
+			});
+
+			if (hasVoted) {
+				await ctx.prisma.feedbackVotes.delete({
+					where: {
+						id: hasVoted.id,
+					},
+				});
+
+				if (hasVoted.voteType === "up") {
+					await ctx.prisma.feedbacks.update({
+						where: {
+							id: input.feedbackId,
+						},
+						data: {
+							upVotes: {
+								decrement: 1,
+							},
+						},
+					});
+				} else {
+					await ctx.prisma.feedbacks.update({
+						where: {
+							id: input.feedbackId,
+						},
+						data: {
+							downVotes: {
+								decrement: 1,
+							},
+						},
+					});
+				}
+
+				return {
+					message: "Vote deleted",
+				};
+			}
+
+			if (input.type === "up") {
+				await ctx.prisma.feedbackVotes.create({
+					data: {
+						feedbackId: input.feedbackId,
+						clientId: input.userId,
+						voteType: "up",
+					},
+				});
+
+				await ctx.prisma.feedbacks.update({
+					where: {
+						id: input.feedbackId,
+					},
+					data: {
+						upVotes: {
+							increment: 1,
+						},
+					},
+				});
+			} else if (input.type === "down") {
+				await ctx.prisma.feedbackVotes.create({
+					data: {
+						feedbackId: input.feedbackId,
+						clientId: input.userId,
+						voteType: "down",
+					},
+				});
+
+				await ctx.prisma.feedbacks.update({
+					where: {
+						id: input.feedbackId,
+					},
+					data: {
+						downVotes: {
+							increment: 1,
+						},
+					},
+				});
+			}
+
+			return {
+				message: "Vote created",
+			};
+		}),
 });
