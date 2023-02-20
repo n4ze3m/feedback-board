@@ -1,11 +1,25 @@
-import { ChevronUpIcon, PlusIcon } from "@heroicons/react/24/outline";
-import { Skeleton } from "antd";
+import { ChevronDownIcon, ChevronUpIcon, PlusIcon } from "@heroicons/react/24/outline";
+import { useForm } from "@mantine/form";
+import { Modal, notification, Skeleton } from "antd";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import React from "react";
 import { api } from "../../utils/api";
 
 export default function BoardBody() {
   const router = useRouter();
+
+  const form = useForm({
+    initialValues: {
+      title: "",
+      message: "",
+      type: "",
+      user: null,
+      email: null,
+    },
+  });
+
+  const [open, setOpen] = React.useState(false);
 
   const {
     data,
@@ -15,6 +29,35 @@ export default function BoardBody() {
   }, {
     onError: () => {
       router.push("/");
+    },
+    onSuccess(data) {
+      if (data) {
+        if (data.types.length > 0) {
+          //@ts-ignore
+          form.setFieldValue("type", data.types[0].id);
+        }
+      }
+    },
+  });
+
+  const client = api.useContext();
+
+  const {
+    mutate: createFeedback,
+    isLoading: createFeedbackLoading,
+  } = api.feedback.createPublicFeedback.useMutation({
+    onSuccess: () => {
+      client.feedback.getPubicFeedback.refetch();
+      notification.success({
+        message: "Feedback created successfully",
+      });
+      setOpen(false);
+      form.reset();
+    },
+    onError: () => {
+      notification.error({
+        message: "Something went wrong",
+      });
     },
   });
 
@@ -44,6 +87,7 @@ export default function BoardBody() {
         </p>
         <div className="mt-6">
           <button
+            onClick={() => setOpen(true)}
             type="button"
             className="inline-flex items-center rounded-md border border-transparent bg-sky-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2"
           >
@@ -70,34 +114,52 @@ export default function BoardBody() {
           <div className="space-y-6 lg:col-span-2 lg:col-start-1">
             <section aria-labelledby="notes-title">
               <div className="bg-white  px-4 py-5 sm:overflow-hidden sm:rounded-lg">
-                {data.length === 0 && EmptyState}
-                {data.length > 0 && (
+                {data.feedbacks.length === 0 && EmptyState}
+                {data.feedbacks.length > 0 && (
                   <ul
                     role="list"
                     className="divide-y divide-gray-200 border-b border-gray-200 mt-3"
                   >
-                    {data.map((feedback) => (
+                    {data.feedbacks.map((feedback) => (
                       <div
                         key={feedback.id}
-                        className="relative bg-white py-5 px-4  hover:bg-gray-50"
+                        className="bg-white py-5 px-4"
                         // className="flex mb-4 rounded bg-white divide-y divide-gray-200 border-b border-gray-200 mt-3"
                         id={feedback.id}
                       >
                         <div className="flex justify-between space-x-3">
                           {/* Vote section */}
                           <div className="flex-shrink-0 flex space-x-2 ">
-                            <button className="px-2 py-1 w-14 flex flex-col items-center text-gray-500 border rounded-md shadow-none white-btn bg-gray-50/50 border-gray-100/50">
-                              <ChevronUpIcon
-                                className="text-blue-800 w-5 h-5"
-                                aria-hidden="true"
-                              />
-                              <p className="font-medium">
-                                {feedback.upVotes}
-                              </p>
-                            </button>
+                            <div className="w-10 py-3 text-center bg-gray-200 rounder-l">
+                              <button
+                                onClick={() => {
+                                  console.log("upvote");
+                                }}
+                                className="w-6 mx-auto text-grey-400 rounder cursor hover:bg-gray-300 hover:text-red-500"
+                              >
+                                <ChevronUpIcon
+                                  className="text-blue-800 w-5 h-5"
+                                  aria-hidden="true"
+                                />
+                              </button>
+                                <p className="font-medium">
+                                  {feedback.upVotes}
+                                </p>
+                                <button
+                                onClick={() => {
+                                  console.log("dowbvote");
+                                }}
+                                className="w-6 mx-auto text-grey-400 rounder cursor hover:bg-gray-300 hover:text-red-500"
+                              >
+                                <ChevronDownIcon
+                                  className="text-blue-800 w-5 h-5"
+                                  aria-hidden="true"
+                                />
+                              </button>
+                            </div>
                           </div>
                           {/* Post data section */}
-                          <Link href="." className="w-full p-2">
+                          <Link href="/" className="w-full p-2 relative ">
                             <div className="flex items-center">
                               <p className="text-xs text-gray-500">
                                 {feedback?.name || "Anonymous"}
@@ -147,6 +209,7 @@ export default function BoardBody() {
                 <div className="mt-6">
                   <button
                     type="button"
+                    onClick={() => setOpen(true)}
                     className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500"
                   >
                     Submit Feedback
@@ -161,6 +224,160 @@ export default function BoardBody() {
           </section>
         </div>
       )}
+
+      <Modal
+        open={open}
+        onCancel={() => setOpen(false)}
+        footer={null}
+        closable={false}
+        width={600}
+      >
+        <h2 className="text-base font-bold text-gray-500">
+          Create a new post
+        </h2>
+        <form
+          className="space-y-4 mt-6"
+          onSubmit={form.onSubmit(async (data) => {
+            return createFeedback({
+              ...data,
+              publicId: router.query.id as string,
+            });
+          })}
+        >
+          <div className="space-y-4">
+            <div className="sm:col-span-4">
+              <label
+                htmlFor="title"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Title
+              </label>
+              <div className="mt-1">
+                <input
+                  id="title"
+                  name="title"
+                  type="text"
+                  {...form.getInputProps("title")}
+                  required
+                  placeholder="A great title"
+                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm"
+                />
+              </div>
+            </div>
+            <div className="sm:col-span-4">
+              <label
+                htmlFor="type"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Type
+              </label>
+              <select
+                id="type"
+                name="type"
+                placeholder="Please select a type"
+                required
+                {...form.getInputProps("type")}
+                className="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm"
+              >
+                {data?.types.map((type) => (
+                  <option key={type.id} value={type.id}>{type.name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="sm:col-span-6">
+              <label
+                htmlFor="message"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Feedback
+              </label>
+              <div className="mt-1">
+                <textarea
+                  id="message"
+                  {...form.getInputProps("message")}
+                  name="message"
+                  placeholder="Write something..."
+                  required
+                  rows={3}
+                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm"
+                  defaultValue={""}
+                />
+              </div>
+            </div>
+            <div className="sm:col-span-6">
+              <div className="relative">
+                <div
+                  className="absolute inset-0 flex items-center"
+                  aria-hidden="true"
+                >
+                  <div className="w-full border-t border-gray-300" />
+                </div>
+                <div className="relative flex justify-start">
+                  <span className="bg-white pr-2 text-sm text-gray-500">
+                    Additonal Information
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+              <div className="sm:col-span-3">
+                <label
+                  htmlFor="user"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Name (optional)
+                </label>
+                <div className="mt-1">
+                  <input
+                    type="text"
+                    name="user"
+                    id="user"
+                    autoComplete="given-name"
+                    {...form.getInputProps("user")}
+                    placeholder="John Doe"
+                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="sm:col-span-3">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Email (optional)
+                </label>
+                <div className="mt-1">
+                  <input
+                    type="email"
+                    name="email"
+                    {...form.getInputProps("email")}
+                    id="email"
+                    autoComplete="email"
+                    placeholder="john.doe@example.com"
+                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="text-right">
+              <button
+                type="submit"
+                disabled={createFeedbackLoading}
+                className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500"
+              >
+                {createFeedbackLoading
+                  ? (
+                    "Submitting..."
+                  )
+                  : (
+                    "Submit"
+                  )}
+              </button>
+            </div>
+          </div>
+        </form>
+      </Modal>
     </>
   );
 }

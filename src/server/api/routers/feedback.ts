@@ -149,6 +149,9 @@ export const feedbackRouter = createTRPCRouter({
 				where: {
 					publicId: input.publicId,
 				},
+				include: {
+					feedbackTypes: true,
+				},
 			});
 
 			if (!project) {
@@ -168,9 +171,71 @@ export const feedbackRouter = createTRPCRouter({
 				},
 			});
 
-			return feedbacks.map((feedback) => ({
-				...feedback,
-				email: undefined,
-			}));
+			return {
+				feedbacks: feedbacks.map((feedback) => ({
+					...feedback,
+					email: undefined,
+					votes: feedback.upVotes - feedback.downVotes,
+				})),
+				types: project.feedbackTypes,
+				settings: {
+					allowVotes: project.isUpVotesEnabled,
+				},
+			};
+		}),
+
+	createPublicFeedback: publicProcedure
+		.input(
+			z.object({
+				publicId: z.string(),
+				title: z.string(),
+				message: z.string(),
+				type: z.string(),
+				user: z.string().nullable(),
+				email: z.string().nullable(),
+			}),
+		)
+		.mutation(async ({ input, ctx }) => {
+			const project = await ctx.prisma.project.findFirst({
+				where: {
+					publicId: input.publicId,
+				},
+			});
+
+			if (!project) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Project not found",
+				});
+			}
+
+			let statusId = null;
+
+			const inReview = await ctx.prisma.feedbackStatus.findFirst({
+				where: {
+					projectId: input.publicId,
+					status: "In Review",
+				},
+			});
+
+			if (inReview) {
+				statusId = inReview.id;
+			}
+
+			await ctx.prisma.feedbacks.create({
+				data: {
+					title: input.title,
+					message: input.message,
+					projectId: project.id,
+					typeId: input.type,
+					statusId: statusId,
+					email: input.email,
+					name: input.user,
+				},
+			});
+
+			return {
+				message: "Feedback created",
+			};
 		}),
 });
