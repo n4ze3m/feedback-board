@@ -246,11 +246,10 @@ export const feedbackRouter = createTRPCRouter({
 					subject: `New feedback from ${
 						input.user || input.email || "Anonymous"
 					}`,
-					message: `
-					<h1>New feedback from ${input.user || input.email || "Anonymous"}</h1>
-					<p>${input.message}</p>
+					message: `## New feedback from ${input.user || input.email || "Anonymous"} 
+					${input.message}
 					`,
-					btnLink: `${process.env.NEXT_PUBLIC_APP_URL}/board/${project.publicId}/${response.id}`,
+					btnLink: `${process.env.APP_URL}/board/${project.publicId}/${response.id}`,
 					btnText: "View feedback",
 				});
 			}
