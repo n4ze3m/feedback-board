@@ -1,5 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { sendNotification } from "../../utils/courier";
 
 import { createTRPCRouter, publicProcedure } from "../trpc";
 
@@ -202,6 +203,9 @@ export const feedbackRouter = createTRPCRouter({
 				where: {
 					publicId: input.publicId,
 				},
+				include: {
+					user: true,
+				},
 			});
 
 			if (!project) {
@@ -224,7 +228,7 @@ export const feedbackRouter = createTRPCRouter({
 				statusId = inReview.id;
 			}
 
-			await ctx.prisma.feedbacks.create({
+			const response = await ctx.prisma.feedbacks.create({
 				data: {
 					title: input.title,
 					message: input.message,
@@ -235,6 +239,21 @@ export const feedbackRouter = createTRPCRouter({
 					name: input.user,
 				},
 			});
+
+			if (project.isNotificationsEnabled) {
+				await sendNotification({
+					recipient: project.user.email,
+					subject: `New feedback from ${
+						input.user || input.email || "Anonymous"
+					}`,
+					message: `
+					<h1>New feedback from ${input.user || input.email || "Anonymous"}</h1>
+					<p>${input.message}</p>
+					`,
+					btnLink: `${process.env.NEXT_PUBLIC_APP_URL}/board/${project.publicId}/${response.id}`,
+					btnText: "View feedback",
+				});
+			}
 
 			return {
 				message: "Feedback created",
@@ -254,6 +273,9 @@ export const feedbackRouter = createTRPCRouter({
 			const project = await ctx.prisma.project.findFirst({
 				where: {
 					publicId: input.publicId,
+				},
+				include: {
+					user: true,
 				},
 			});
 
@@ -429,6 +451,9 @@ export const feedbackRouter = createTRPCRouter({
 				where: {
 					publicId: input.publicId,
 				},
+				include: {
+					user: true,
+				},
 			});
 
 			if (!project) {
@@ -460,6 +485,18 @@ export const feedbackRouter = createTRPCRouter({
 					name: input.user,
 				},
 			});
+
+			if (project.isNotificationsEnabled) {
+				await sendNotification({
+					recipient: project.user.email,
+					subject: "Someone commented on one of your feedbacks",
+					message: `## ${input.user || input.email || "Anonymous"} left a comment on your feedback
+					${input.message}
+					`,
+					btnLink: `${process.env.APP_URL}/board/${project.publicId}/${feedback.id}`,
+					btnText: "View feedback",
+				});
+			}
 
 			return {
 				message: "Comment created",
