@@ -1,9 +1,9 @@
 import { GetServerSideProps, type NextPage } from "next";
 import Head from "next/head";
 import React from "react";
-import BoardBody from "../../components/Board";
-import BoardLayout from "../../components/Board/Layout";
-import { prisma } from "../../server/db";
+import BoardBody from "../../../components/Board";
+import BoardLayout from "../../../components/Board/Layout";
+import { prisma } from "../../../server/db";
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const project = await prisma.project.findFirst({

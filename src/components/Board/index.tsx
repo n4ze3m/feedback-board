@@ -171,7 +171,30 @@ export default function BoardBody() {
                                 />
                               </button>
                               <p className="font-medium">
-                                {feedback.upVotes}
+                                {createVoteLoading
+                                  ? (
+                                    <svg
+                                      className="animate-spin ml-3 h-3 w-3 text-blue-800"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <circle
+                                        className="opacity-25"
+                                        cx="12"
+                                        cy="12"
+                                        r="10"
+                                        stroke="currentColor"
+                                        strokeWidth="4"
+                                      />
+                                      <path
+                                        className="opacity-75"
+                                        fill="currentColor"
+                                        d="M4 12a8 8 0 018-8v8H4z"
+                                      />
+                                    </svg>
+                                  )
+                                  : feedback?.votes}
                               </p>
                               <button
                                 disabled={createVoteLoading}
@@ -192,8 +215,16 @@ export default function BoardBody() {
                               </button>
                             </div>
                           </div>
-                          {/* Post data section */}
-                          <Link href="/" className="w-full p-2 relative ">
+                          <Link
+                            href={{
+                              pathname: "/board/[id]/[feedbackId]",
+                              query: {
+                                id: router.query.id,
+                                feedbackId: feedback.id,
+                              },
+                            }}
+                            className="w-full p-2 relative "
+                          >
                             <div className="flex items-center">
                               <p className="text-xs text-gray-500">
                                 {feedback?.name || "Anonymous"}

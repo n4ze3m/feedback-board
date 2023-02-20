@@ -62,6 +62,7 @@ export const feedbackRouter = createTRPCRouter({
 				include: {
 					status: true,
 					type: true,
+					comments: true,
 				},
 			});
 
@@ -75,6 +76,7 @@ export const feedbackRouter = createTRPCRouter({
 			return {
 				...feedback,
 				project_status: isUserInProject.status,
+				votes: feedback.upVotes - feedback.downVotes,
 			};
 		}),
 
@@ -213,7 +215,7 @@ export const feedbackRouter = createTRPCRouter({
 
 			const inReview = await ctx.prisma.feedbackStatus.findFirst({
 				where: {
-					projectId: input.publicId,
+					projectId:project.id,
 					status: "In Review",
 				},
 			});
@@ -362,6 +364,105 @@ export const feedbackRouter = createTRPCRouter({
 
 			return {
 				message: "Vote created",
+			};
+		}),
+
+	getSingleFeedbackPublic: publicProcedure
+		.input(
+			z.object({
+				publicId: z.string(),
+				feedbackId: z.string(),
+			}),
+		)
+		.query(async ({ input, ctx }) => {
+			const project = await ctx.prisma.project.findFirst({
+				where: {
+					publicId: input.publicId,
+				},
+			});
+
+			if (!project) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Project not found",
+				});
+			}
+
+			const feedback = await ctx.prisma.feedbacks.findFirst({
+				where: {
+					id: input.feedbackId,
+					projectId: project.id,
+				},
+				include: {
+					status: true,
+					type: true,
+					comments: true,
+				},
+			});
+
+			if (!feedback) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Feedback not found",
+				});
+			}
+
+			return {
+				...feedback,
+				email: undefined,
+				votes: feedback.upVotes - feedback.downVotes,
+			};
+		}),
+
+		createPublicComment: publicProcedure
+		.input(
+			z.object({
+				publicId: z.string(),
+				feedbackId: z.string(),
+				message: z.string(),
+				user: z.string().nullable(),
+				email: z.string().nullable(),
+			}),
+		)
+		.mutation(async ({ input, ctx }) => {
+			const project = await ctx.prisma.project.findFirst({
+				where: {
+					publicId: input.publicId,
+				},
+			});
+
+			if (!project) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Project not found",
+				});
+			}
+
+			const feedback = await ctx.prisma.feedbacks.findFirst({
+				where: {
+					id: input.feedbackId,
+					projectId: project.id,
+				},
+			});
+
+			if (!feedback) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Feedback not found",
+				});
+			}
+
+			await ctx.prisma.feedbackComment.create({
+				data: {
+					message: input.message,
+					feedbackId: feedback.id,
+					email: input.email,
+					name: input.user,
+				},
+			});
+
+			return {
+				message: "Comment created",
 			};
 		}),
 });
