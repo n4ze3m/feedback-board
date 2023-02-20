@@ -12,6 +12,7 @@ export const DashboardDetailsSettings = () => {
       username: "",
       isNotificationsEnabled: false,
       isUpVotesEnabled: false,
+      isSpamFilterEnabled: false,
     },
   });
 
@@ -31,6 +32,7 @@ export const DashboardDetailsSettings = () => {
         username: data.publicId,
         isNotificationsEnabled: data.isNotificationsEnabled,
         isUpVotesEnabled: data.isUpVotesEnabled,
+        isSpamFilterEnabled: data.isEnableSpamFilter,
       });
     },
   });
@@ -127,7 +129,7 @@ export const DashboardDetailsSettings = () => {
                     </label>
                     <div className="mt-1 flex rounded-md shadow-sm">
                       <span className="inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-3 text-gray-500 sm:text-sm">
-                       feedbackboard.vercel.app/board/
+                        feedbackboard.vercel.app/board/
                       </span>
                       <input
                         type="text"
@@ -190,6 +192,31 @@ export const DashboardDetailsSettings = () => {
                             </label>
                             <p className="text-gray-500">
                               Enable upvotes on your feedback posts.
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-start">
+                          <div className="flex h-5 items-center">
+                            <input
+                              id="spam"
+                              name="spam"
+                              {...form.getInputProps("isSpamFilterEnabled", {
+                                type: "checkbox",
+                              })}
+                              type="checkbox"
+                              className="h-4 w-4 rounded border-gray-300 text-sky-600 focus:ring-sky-500"
+                            />
+                          </div>
+                          <div className="ml-3 text-sm">
+                            <label
+                              htmlFor="spam"
+                              className="font-medium text-gray-700"
+                            >
+                              Spam Filter (AI)
+                            </label>
+                            <p className="text-gray-500">
+                              Enable spam filter on your feedback posts and
+                              comments.
                             </p>
                           </div>
                         </div>

@@ -19,6 +19,7 @@ The Feedback Board uses following technologies:
 - tRPC
 - Supbase for Auth and Database
 - Courier for Notifications
+- CoHere NLP
 
 ## Challenges we ran into
 
@@ -30,12 +31,13 @@ Accomplishments that we're proud of include:
 
 - Board creation
 - Notifications
+- AI spam detection and moderation
 - Upvoting and downvoting
 - Commenting
 
 ## What we learned
 
-Learned more about Next.js and Tailwind CSS and how to use them together. Also learned more about tRPC and how to use it with Supabase.
+Learned more about Next.js and Tailwind CSS and how to use them together. Also learned more about tRPC and how to use it with Supabase. Spent some time learning about CoHere NLP and how to use it to detect spam.
 
 ## What's next for Feedback Board
 

@@ -3,9 +3,7 @@ import {
   ChatBubbleLeftEllipsisIcon,
   ChevronUpIcon,
 } from "@heroicons/react/24/outline";
-import {
-    CheckBadgeIcon
-  } from "@heroicons/react/24/solid"
+import { CheckBadgeIcon } from "@heroicons/react/24/solid";
 import { useForm } from "@mantine/form";
 import { Empty, notification, Skeleton } from "antd";
 import { useRouter } from "next/router";
@@ -49,9 +47,9 @@ export const BoardDetailsBody = () => {
 
       form.reset();
     },
-    onError: () => {
+    onError: (err) => {
       notification.error({
-        message: "Failed to create comment",
+        message: err.message,
       });
     },
   });

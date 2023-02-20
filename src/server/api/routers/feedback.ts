@@ -1,5 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { spamDetection } from "../../utils/cohere";
 import { sendNotification } from "../../utils/courier";
 
 import { createTRPCRouter, publicProcedure } from "../trpc";
@@ -215,6 +216,19 @@ export const feedbackRouter = createTRPCRouter({
 				});
 			}
 
+			if (project.isEnableSpamFilter) {
+				const isSpam = await spamDetection(
+					`${input.title}\n\n${input.message}`,
+				);
+
+				if (isSpam) {
+					throw new TRPCError({
+						code: "BAD_REQUEST",
+						message: "Your feedback appears to be spam. Please try again.",
+					});
+				}
+			}
+
 			let statusId = null;
 
 			const inReview = await ctx.prisma.feedbackStatus.findFirst({
@@ -246,7 +260,9 @@ export const feedbackRouter = createTRPCRouter({
 					subject: `New feedback from ${
 						input.user || input.email || "Anonymous"
 					}`,
-					message: `## New feedback from ${input.user || input.email || "Anonymous"} 
+					message: `## New feedback from ${
+						input.user || input.email || "Anonymous"
+					} 
 					${input.message}
 					`,
 					btnLink: `${process.env.APP_URL}/board/${project.publicId}/${response.id}`,
@@ -460,6 +476,17 @@ export const feedbackRouter = createTRPCRouter({
 					code: "NOT_FOUND",
 					message: "Project not found",
 				});
+			}
+
+			if (project.isEnableSpamFilter) {
+				const isSpam = await spamDetection(input.message);
+
+				if (isSpam) {
+					throw new TRPCError({
+						code: "BAD_REQUEST",
+						message: "Your comment has been flagged as spam. Please try again later."
+					});
+				}
 			}
 
 			const feedback = await ctx.prisma.feedbacks.findFirst({

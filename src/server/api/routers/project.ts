@@ -327,6 +327,7 @@ export const projectRouter = createTRPCRouter({
 					username: z.string(),
 					isNotificationsEnabled: z.boolean(),
 					isUpVotesEnabled: z.boolean(),
+					isSpamFilterEnabled: z.boolean(),
 				}),
 			}),
 		)
@@ -382,6 +383,7 @@ export const projectRouter = createTRPCRouter({
 					publicId: slug,
 					isNotificationsEnabled: input.settings.isNotificationsEnabled,
 					isUpVotesEnabled: input.settings.isUpVotesEnabled,
+					isEnableSpamFilter: input.settings.isSpamFilterEnabled,
 				},
 			});
 

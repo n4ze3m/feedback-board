@@ -59,9 +59,9 @@ export default function BoardBody() {
       setOpen(false);
       form.reset();
     },
-    onError: () => {
+    onError: (err) => {
       notification.error({
-        message: "Something went wrong",
+        message: err.message,
       });
     },
   });

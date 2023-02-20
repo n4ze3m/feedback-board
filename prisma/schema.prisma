@@ -32,6 +32,7 @@ model Project {
     isPublic               Boolean          @default(false)
     isNotificationsEnabled Boolean          @default(true)
     isUpVotesEnabled       Boolean          @default(true)
+    isEnableSpamFilter     Boolean          @default(true)
     disableFeedback        Boolean          @default(false)
     feedbacks              Feedbacks[]
     createdAt              DateTime         @default(now())
