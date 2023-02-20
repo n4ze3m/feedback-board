@@ -13,10 +13,15 @@ const handler = async function (req: NextApiRequest, res: NextApiResponse) {
   });
 
   if (project) {
-    res.redirect(307, `/board/${project.publicId}`);
+    // res.redirect(307, `/board/${project.publicId}`);
+    res.setHeader("Location", `/board/${project.publicId}`);
+    res.statusCode = 307;
+    return res.end();
   }
 
-  return res.redirect(307, "/dashboard");
+  res.statusCode = 404;
+  return res.end();
+
 };
 
 export default handler;
