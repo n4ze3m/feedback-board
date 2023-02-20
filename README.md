@@ -16,6 +16,7 @@ An open source tool that allows you to gather feedback from your users or custom
 - [Node.js](https://nodejs.org/en/)(v14.15.0 or higher)
 - [Supabase](https://supabase.io/) 
 - [Courier](https://www.courier.com/) 
+- [CoHere](https://www.cohere.ai/)
 
 ### Installation
 
@@ -60,7 +61,10 @@ npx prisma db push
 
 8. Copy the template ID and API key from your Courier project and add them to the `.env` file
 
-9. Start the development server
+
+9 (optional). If you want to use CoHere NLP to detect spam, create an account and add the API key to the `.env` file
+
+10. Start the development server
 
 ```bash
 
