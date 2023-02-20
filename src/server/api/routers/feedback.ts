@@ -215,7 +215,7 @@ export const feedbackRouter = createTRPCRouter({
 
 			const inReview = await ctx.prisma.feedbackStatus.findFirst({
 				where: {
-					projectId:project.id,
+					projectId: project.id,
 					status: "In Review",
 				},
 			});
@@ -414,7 +414,7 @@ export const feedbackRouter = createTRPCRouter({
 			};
 		}),
 
-		createPublicComment: publicProcedure
+	createPublicComment: publicProcedure
 		.input(
 			z.object({
 				publicId: z.string(),
@@ -458,6 +458,64 @@ export const feedbackRouter = createTRPCRouter({
 					feedbackId: feedback.id,
 					email: input.email,
 					name: input.user,
+				},
+			});
+
+			return {
+				message: "Comment created",
+			};
+		}),
+
+	createAdminComment: publicProcedure
+		.input(
+			z.object({
+				publicId: z.string(),
+				feedbackId: z.string(),
+				message: z.string(),
+			}),
+		)
+		.mutation(async ({ input, ctx }) => {
+			if (!ctx.user) {
+				throw new TRPCError({
+					code: "UNAUTHORIZED",
+					message: "Unauthorized",
+				});
+			}
+
+			const project = await ctx.prisma.project.findFirst({
+				where: {
+					id: input.publicId,
+				},
+			});
+
+			if (!project) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Project not found",
+				});
+			}
+
+			const feedback = await ctx.prisma.feedbacks.findFirst({
+				where: {
+					id: input.feedbackId,
+					projectId: project.id,
+				},
+			});
+
+			if (!feedback) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Feedback not found",
+				});
+			}
+
+			await ctx.prisma.feedbackComment.create({
+				data: {
+					message: input.message,
+					feedbackId: feedback.id,
+					email: ctx.user.email,
+					name: "Admin",
+					isAdmin: true,
 				},
 			});
 

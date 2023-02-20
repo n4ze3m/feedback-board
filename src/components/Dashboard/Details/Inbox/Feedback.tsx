@@ -1,13 +1,18 @@
 import React from "react";
 import { api } from "../../../../utils/api";
 import { useRouter } from "next/router";
-import { notification, Skeleton } from "antd";
+import { Empty, notification, Skeleton } from "antd";
 import {
   CalendarIcon,
   ChatBubbleLeftEllipsisIcon,
   ChevronUpIcon,
 } from "@heroicons/react/24/outline";
+
+import {
+  CheckBadgeIcon
+} from "@heroicons/react/24/solid"
 import { useForm } from "@mantine/form";
+import moment from "moment";
 
 export const FeedbackDetails = () => {
   const router = useRouter();
@@ -37,6 +42,37 @@ export const FeedbackDetails = () => {
       notification.success({
         message: "Success",
         description: "Feedback status changed successfully",
+      });
+    },
+  });
+
+  const form = useForm({
+    initialValues: {
+      message: "",
+      user: null,
+      email: null,
+    },
+  });
+
+  const {
+    mutateAsync: createComment,
+    isLoading: isCommentLoading,
+  } = api.feedback.createAdminComment.useMutation({
+    onSuccess: () => {
+      client.feedback.getFeedbackById.invalidate({
+        projectId: router.query.id as string,
+        feedbackId: router.query.fid as string,
+      });
+
+      notification.success({
+        message: "Comment created successfully",
+      });
+
+      form.reset();
+    },
+    onError: () => {
+      notification.error({
+        message: "Failed to create comment",
       });
     },
   });
@@ -73,7 +109,7 @@ export const FeedbackDetails = () => {
                             aria-hidden="true"
                           />
                           <span className="text-sm font-medium text-gray-900">
-                            {`${projectInfo?.upVotes} upvotes`}
+                            {`${projectInfo?.votes} votes`}
                           </span>
                         </div>
                         <div className="flex items-center space-x-2">
@@ -82,7 +118,8 @@ export const FeedbackDetails = () => {
                             aria-hidden="true"
                           />
                           <span className="text-sm font-medium text-gray-900">
-                            4 comments
+                          {`${projectInfo?.comments.length} comments`}
+
                           </span>
                         </div>
                         <div className="flex items-center space-x-2">
@@ -118,10 +155,10 @@ export const FeedbackDetails = () => {
                         </div>
                         <div>
                           <label
-                            htmlFor="location"
+                            htmlFor="status"
                             className="block text-sm font-medium text-gray-700"
                           >
-                            Location
+                            Status
                           </label>
                           <select
                             id="status"
@@ -157,6 +194,132 @@ export const FeedbackDetails = () => {
                       </div>
                     </div>
                   </div>
+                  <section
+                    aria-labelledby="comment-title"
+                    className="mt-8 xl:mt-10"
+                  >
+                    <div>
+                      <div className="divide-y divide-gray-200">
+                        <div className="pb-4">
+                          <h2
+                            id="comment-title"
+                            className="text-lg font-medium text-gray-900"
+                          >
+                            Comments
+                          </h2>
+                        </div>
+                        <div className="pt-6">
+                          <div className="flow-root">
+                            <ul role="list" className="-mb-8">
+                              {/* here */}
+                              {projectInfo.comments.map((item, itemIdx) => (
+                                <li key={item.id}>
+                                  <div className="relative pb-8">
+                                    {itemIdx !== projectInfo.comments.length - 1
+                                      ? (
+                                        <span
+                                          className="absolute top-5 left-5 -ml-px h-full w-0.5 bg-gray-200"
+                                          aria-hidden="true"
+                                        />
+                                      )
+                                      : null}
+                                    <div className="relative flex items-start space-x-3">
+                                      <div className="relative">
+                                        <img
+                                          className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-400 ring-8 ring-white"
+                                          src={`https://api.dicebear.com/5.x/fun-emoji/svg?seed=${
+                                            item?.name || "Anonymous"
+                                          }`}
+                                          alt=""
+                                        />
+                                        {item?.isAdmin && (
+                                          <span className="absolute -bottom-0.5 -right-1 rounded-tl px-0.5 py-px">
+                                            <CheckBadgeIcon
+                                              className="h-5 w-5 text-blue-800"
+                                              aria-hidden="true"
+                                            />
+                                          </span>
+                                        )}
+                                      </div>
+                                      <div className="min-w-0 flex-1">
+                                        <div>
+                                          <div className="text-sm">
+                                            <span className="font-medium text-gray-900">
+                                              {item?.name || "Anonymous"}
+                                            </span>
+                                          </div>
+                                          <p className="mt-0.5 text-sm text-gray-500">
+                                            {moment(item.createdAt).fromNow()}
+                                          </p>
+                                        </div>
+                                        <div className="mt-2 text-sm text-gray-700">
+                                          <p>{item.message}</p>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </li>
+                              ))}
+                              {projectInfo.comments.length === 0 && (
+                                <Empty
+                                  className="my-6"
+                                  description="No comments"
+                                />
+                              )}
+                            </ul>
+                          </div>
+                          <div className="mt-6">
+                            <div className="flex space-x-3">
+                              <div className="min-w-0 flex-1">
+                                <form
+                                  onSubmit={form.onSubmit((data) => {
+                                    return createComment({
+                                      ...data,
+                                      publicId: router.query.id as string,
+                                      feedbackId: router.query.fid as string,
+                                    });
+                                  })}
+                                >
+                                  <div>
+                                    <label
+                                      htmlFor="comment"
+                                      className="sr-only"
+                                    >
+                                      Comment
+                                    </label>
+                                    <textarea
+                                      id="comment"
+                                      {...form.getInputProps("message")}
+                                      name="comment"
+                                      rows={3}
+                                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-sky-900 focus:ring-sky-900 sm:text-sm"
+                                      placeholder="Leave a comment"
+                                      defaultValue={""}
+                                    />
+                                  </div>
+                                  <div className="mt-6 flex items-center justify-end space-x-4">
+                                    <button
+                                      type="submit"
+                                      disabled={isCommentLoading}
+                                      className="inline-flex items-center justify-center rounded-md border border-transparent bg-sky-900 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-sky-800 focus:outline-none focus:ring-2 focus:ring-sky-900 focus:ring-offset-2"
+                                    >
+                                      {isCommentLoading
+                                        ? (
+                                          "Submitting..."
+                                        )
+                                        : (
+                                          "Comment"
+                                        )}
+                                    </button>
+                                  </div>
+                                </form>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
                 </div>
               </div>
               <aside className="hidden xl:block xl:pl-8">
@@ -168,7 +331,7 @@ export const FeedbackDetails = () => {
                       aria-hidden="true"
                     />
                     <span className="text-sm font-medium text-gray-900">
-                      {`${projectInfo?.upVotes} upvotes`}
+                      {`${projectInfo?.votes} votes`}
                     </span>
                   </div>
                   <div className="flex items-center space-x-2">
@@ -177,7 +340,8 @@ export const FeedbackDetails = () => {
                       aria-hidden="true"
                     />
                     <span className="text-sm font-medium text-gray-900">
-                      4 comments
+                    {`${projectInfo?.comments.length} comments`}
+
                     </span>
                   </div>
                   <div className="flex items-center space-x-2">

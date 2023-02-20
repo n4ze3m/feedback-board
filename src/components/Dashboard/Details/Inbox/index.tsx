@@ -78,7 +78,7 @@ export const DashboardDetailsInbox = () => {
                     className="relative bg-white py-5 px-4  hover:bg-gray-50"
                   >
                     <div className="flex justify-between space-x-3">
-                      <div className="flex-shrink-0 flex space-x-2">
+                      {/* <div className="flex-shrink-0 flex space-x-2">
                         <button className="px-2 py-1 w-14 flex flex-col items-center text-gray-500 border rounded-md shadow-none white-btn bg-gray-50/50 border-gray-100/50">
                           <ChevronUpIcon
                             className="text-blue-800 w-5 h-5"
@@ -88,7 +88,7 @@ export const DashboardDetailsInbox = () => {
                             {project.upVotes}
                           </p>
                         </button>
-                      </div>
+                      </div> */}
                       <Link
                         className="min-w-0 flex-1"
                         href={{

@@ -1,9 +1,11 @@
 import {
   CalendarIcon,
   ChatBubbleLeftEllipsisIcon,
-  CheckBadgeIcon,
   ChevronUpIcon,
 } from "@heroicons/react/24/outline";
+import {
+    CheckBadgeIcon
+  } from "@heroicons/react/24/solid"
 import { useForm } from "@mantine/form";
 import { Empty, notification, Skeleton } from "antd";
 import { useRouter } from "next/router";
@@ -198,7 +200,7 @@ export const BoardDetailsBody = () => {
                                       {item?.isAdmin && (
                                         <span className="absolute -bottom-0.5 -right-1 rounded-tl px-0.5 py-px">
                                           <CheckBadgeIcon
-                                            className="h-5 w-5 text-green-500"
+                                            className="h-5 w-5  text-blue-800"
                                             aria-hidden="true"
                                           />
                                         </span>
@@ -252,7 +254,7 @@ export const BoardDetailsBody = () => {
                                     {...form.getInputProps("message")}
                                     name="comment"
                                     rows={3}
-                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900 sm:text-sm"
+                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-sky-900 focus:ring-sky-900 sm:text-sm"
                                     placeholder="Leave a comment"
                                     defaultValue={""}
                                   />
