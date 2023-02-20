@@ -1,28 +1,80 @@
-# Create T3 App
+# Feedback Board
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+An open source tool that allows you to gather feedback from your users or customers, prioritize the most important feedback, and keep your team organized and informed. With features like email notifications, unlimited boards, upvotes, and comments, this tool is designed to make it easy to collect and manage feedback in a collaborative and efficient way.
 
-## What's next? How do I make an app with this?
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+## Features
+- Email Notifications: Receive updates about feedback you have submitted or voted on.
+- Unlimited Boards: Create and manage multiple feedback boards for different projects or departments.
+- Upvotes and Comments: Interact with feedback and express your opinions.
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+## Self-hosting
 
-## Learn More
+### Prerequisites
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+- [Node.js](https://nodejs.org/en/)(v14.15.0 or higher)
+- [Supabase](https://supabase.io/) 
+- [Courier](https://www.courier.com/) 
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+### Installation
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+1. Clone the repository
 
-## How do I deploy this?
+```bash
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+git clone https://github.com/n4ze3m/feedback-board.git
+
+```
+
+2. Install dependencies
+
+```bash
+
+cd feedback-board
+
+npm install
+
+```
+
+3. Create a Supabase project and a new database
+
+4. Create a new table in the database and name it `feedback` with the following columns:
+
+```bash
+
+npx prisma db push
+
+```
+
+5. Execute the query from [SUPABASE.sql](SUPABASE.sql) in the SQL editor of your Supabase project
+
+6. Copy the `.env.example` file and rename it to `.env` and fill in the required values from your Supabase project
+
+7. On your Courier project, create a template with the following variables:
+
+- {subject}
+- {message}
+- {btnText}
+- {btnLink}
+
+8. Copy the template ID and API key from your Courier project and add them to the `.env` file
+
+9. Start the development server
+
+```bash
+
+npm run dev
+
+```
+
+10. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+
+## Contributing
+
+We welcome contributions from the community! If you find a bug or have a suggestion for a new feature, please open an [issue](/issues). If you would like to contribute code, please submit a [pull request](/pulls).
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
