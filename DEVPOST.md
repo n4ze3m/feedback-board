@@ -4,11 +4,11 @@ Simplify your feedback process and improve user satisfaction with our open-sourc
 
 ## Inspiration
 
-Effective feedback management is critical to the success of any project or organization, but managing feedback can be complex and time-consuming. The Feedback Board is a simple and intuitive tool designed to streamline the feedback process and prioritize the most important feedback. With customizable boards and email notifications, teams can tailor the feedback process to their unique needs and stay informed about any changes or updates to the feedback.
+Effective feedback management is critical to the success of any project or organization, but managing feedback can be complex and time-consuming. The Feedback Board is a simple and intuitive tool designed to streamline the feedback process and prioritize the most important feedback. With customizable boards and email notifications, teams can tailor the feedback process to their unique needs and stay informed about any changes or updates to the feedback. 
 
 ## What it does
 
-The Feedback Board is a web-based tool that allows users to submit feedback, upvote or downvote existing feedback items, and add comments to provide additional context or suggestions.
+The Feedback Board is a web-based tool that allows users to submit feedback, upvote or downvote existing feedback items, and add comments to provide additional context or suggestions. AI powered spam detection and moderation is used to detect spam and offensive content.
 
 ## How we built it
 

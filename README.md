@@ -7,6 +7,7 @@ An open source tool that allows you to gather feedback from your users or custom
 - Email Notifications: Receive updates about feedback you have submitted or voted on.
 - Unlimited Boards: Create and manage multiple feedback boards for different projects or departments.
 - Upvotes and Comments: Interact with feedback and express your opinions.
+- AI powered spam detection: CoHere NLP is used to detect spam and offensive content.
 
 
 ## Self-hosting
