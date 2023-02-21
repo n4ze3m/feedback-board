@@ -13,6 +13,7 @@ const poppins = Poppins({
   style: ["normal"],
   subsets: ["latin"],
 });
+import NextNProgress from 'nextjs-progressbar';
 function MyApp({
   Component,
   pageProps,
@@ -23,6 +24,7 @@ function MyApp({
 
   return (
     <>
+    <NextNProgress />
       <style jsx global>
         {`
         html, body {
